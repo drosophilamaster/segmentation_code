@@ -5,16 +5,19 @@ filenamestr = "../20191017181230_JGFPHRFP_1um_10spf_2x63x_oiloil_4pc1pc_max_z_RF
 m_length = zeros(1,size(objects_positions,1)-1);
 std_length = m_length;
 std_err_length = m_length;
+
+
 for i =  1: size(objects_positions,1)-1
     
     save_filename = strcat('triangulation/triangulation_', sprintf('%03d',i), '.png');
+    save_filename_tris = strcat('triangles/triangulation_', sprintf('%03d',i), '.mat');
     img1 = imread(filenamestr, i);
     P = objects_positions{i,1}.*size(img1); % points
     %px = P(:, 1);
     %py = P(:, 2);
     DT = delaunayTriangulation(P);  
     %ratio_list = metriclist(DT.ConnectivityList, P);
-    cl = clean_connlist(0.9, DT.ConnectivityList, P);
+    cl = clean_connlist(0.87, DT.ConnectivityList, P);
     TR = triangulation(cl, P);
     edge_list = edges(TR);
     length_list = get_length(edge_list, P);
@@ -45,7 +48,9 @@ for i =  1: size(objects_positions,1)-1
     xlim([0 50])
     xlabel("distance [micron]")
     ylim([0 150])
-    saveas(gcf,save_filename)
+    %saveas(gcf,save_filename)
+    
+    save(save_filename_tris, 'TR')
 end
 
 

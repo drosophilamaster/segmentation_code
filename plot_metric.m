@@ -1,7 +1,8 @@
 
-cutoff = 0.7;
+cutoff =0.87;
 
 for i = -pi/2:0.01:0
+    clf
     viscircles([0,0],1,'Color','g');
     hold on
     viscircles([0,0],cutoff,'Color','g');
@@ -38,7 +39,6 @@ for i = -pi/2:0.01:0
     
     hold off;
     pause(0.001)
-
 end
 
 
