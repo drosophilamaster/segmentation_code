@@ -2,10 +2,12 @@ clear;
 
 load ('position_list_1.mat')
 filenamestr = "../20191017181230_JGFPHRFP_1um_10spf_2x63x_oiloil_4pc1pc_max_z_RFP.tif";
+load('psi6.mat')
 cmap = colormap;
-mean_psi6 = zeros(1,size(objects_positions,1)-1);
-mean_mod_psi = zeros(1,size(objects_positions,1)-1);
-
+% mean_psi6 = zeros(1,size(objects_positions,1)-1);
+% m_psi = zeros(1,size(objects_positions,1)-1);
+% std_psi = m_psi;
+% stderr_psi = m_psi;
 for i = 1:size(objects_positions,1)-1
     
     save_filename = strcat('psi6_plots_with_tri/psi6_', sprintf('%03d',i), '.png');
@@ -50,21 +52,24 @@ for i = 1:size(objects_positions,1)-1
     end     
     
     
-    
-    psi1 = rmmissing(psi);
-    mean_mod_psi(i) = mean(abs(psi1));
+%     %% get mean, std, std err
+     psi1 = rmmissing(psi);
+%     m_psi(i) = mean(abs(psi1));
+%     std_psi(i) = std(abs(psi1));
+%     stderr_psi(i) = std(abs(psi1))/sqrt(length(psi1));
+%     
     
 
-    
-    subplot(1,2,1)
+    clf;
+    subplot(2,2,1)
     triplot(TR);
     hold on
     xs = points(:,1);
     ys = points(:,2);
     [v, c] = voronoin(points);
-    voronoi(xs,ys)
-    
-    hold on
+    %voronoi(xs,ys)
+%     
+%     hold on
    
     % plot txt
 %      for k = 1: num_points
@@ -86,8 +91,38 @@ for i = 1:size(objects_positions,1)-1
     hold off
     uistack(imh, 'bottom')
     
+
     
-    subplot(1,2,2)
+    subplot(2,2,2)
+    time = 0:10:(length(m_psi)-1)*10;
+    t2 = [time, fliplr(time)];
+
+    hold on;
+    std_plus = m_psi+std_psi;
+    std_minus = m_psi-std_psi;
+
+    std_err_plus = m_psi+stderr_psi;
+    std_err_minus = m_psi-stderr_psi;
+
+    inBetween1 = [std_minus, fliplr(std_plus)];
+    inBetween2 = [std_err_minus, fliplr(std_err_plus)];
+    h1 = fill(t2, inBetween1, 'y');
+    h2 = fill(t2, inBetween2, 'g');
+    set(h1,'facealpha',.5)
+    set(h2, 'facealpha', .5)
+    plot(time ,m_psi, 'Color', 'b', 'LineWidth', 2);
+    plot(time(i), m_psi(i), 'rs')
+    ylim([0.1,0.8])
+    xlim([0,3500])
+    
+    xlabel("time [s]")
+    ylabel(['\psi_' num2str(6)])
+    
+    set(gcf, 'Position', [100,100,1500,1000])
+    hold on;
+    
+    subplot(2,2,3)
+    hold on
     cinds = uint8(min(abs(psi1),1)*length(cmap));
     scatter(real(psi1), imag(psi1), 40, cmap(max(1, cinds),:));
     xlim([-1.1, 1.1])
@@ -95,13 +130,90 @@ for i = 1:size(objects_positions,1)-1
     axis equal    
     xlim([-1.1, 1.1])
     ylim([-1.1, 1.1])
-    hold on;
     plot(cos(0:0.01:2*pi), sin(0:0.01:2*pi), 'k-')
     xlabel(['\Re \psi_' num2str(6)])
     ylabel(['\Im \psi_' num2str(6)])
-    saveas(gcf,save_filename)
-    hold off
+     saveas(gcf,save_filename)
+     hold off
 end
+
+%%
+save('psi6.mat','m_psi', 'std_psi', 'stderr_psi')
+
+%%
+% load('lengths.mat')
+% for i = flip(1:20, 2)%1:size(objects_positions,1)-1
+%     save_filename = strcat('psi1/psi6_', sprintf('%03d',i), '.png');
+%     load(strcat('triangles/triangulation_', sprintf('%03d',i), '.mat'))
+%     img1 = imread(filenamestr, i);
+%     clf
+%     subplot(2,2,2)
+%     triplot(TR)
+%     
+%     hold on;
+%     
+%     imh = imshow(img1);
+%     hold off
+%     uistack(imh, 'bottom')
+%     
+%     
+%     subplot(2,2,1)
+%     %% plot mean
+%     time = 0:10:(length(m_psi)-1)*10;
+%     t2 = [time, fliplr(time)];
+% 
+%     hold on;
+%     std_plus = m_psi+std_psi;
+%     std_minus = m_psi-std_psi;
+% 
+%     std_err_plus = m_psi+stderr_psi;
+%     std_err_minus = m_psi-stderr_psi;
+% 
+%     inBetween1 = [std_minus, fliplr(std_plus)];
+%     inBetween2 = [std_err_minus, fliplr(std_err_plus)];
+%     h1 = fill(t2, inBetween1, 'y');
+%     h2 = fill(t2, inBetween2, 'g');
+%     set(h1,'facealpha',.5)
+%     set(h2, 'facealpha', .5)
+%     plot(time ,m_psi, 'Color', 'b', 'LineWidth', 2);
+%     plot(time(i), m_psi(i), 'rs')
+%     ylim([0.1,0.8])
+%     xlim([0,3500])
+% %     axis equal
+% %     ylim([0.1,0.8])
+% %     xlim([0,3500])
+%     
+%     xlabel("time [s]")
+%     ylabel(['\psi_' num2str(6)])
+%     
+%     subplot(2,2,3)
+%     hold on;
+%     std_plus = m_length+std_length;
+%     std_minus = m_length-std_length;
+%     
+%     std_err_plus = m_length+std_err_length;
+%     std_err_minus = m_length-std_err_length;
+%     
+%     inBetween1 = [std_minus, fliplr(std_plus)];
+%     inBetween2 = [std_err_minus, fliplr(std_err_plus)];
+%     h1 = fill(t2, inBetween1, 'y');
+%     h2 = fill(t2, inBetween2, 'g');
+%     set(h1,'facealpha',.5)
+%     set(h2, 'facealpha', .5)
+%     plot(time ,m_length, 'Color', 'b', 'LineWidth', 2);
+%     plot(time(i), m_length(i), 'rs')
+%     xlabel("time [s]")
+%     ylabel("average distance [micron]")
+%     
+%    
+%     set(gcf, 'Position', get(0, 'Screensize'))
+%     %pause(2)
+%     saveas(gcf,save_filename)
+%     hold off;
+%end
+
+
+
 
 
 
