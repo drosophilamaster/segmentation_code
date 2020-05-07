@@ -15,8 +15,8 @@ for i = 1:num_timepoints-2
     big_img2(pos_x:pos_x+255, pos_y:pos_y+255) = img2;
     pos_x = pos_x-shiftx;
     pos_y = pos_y-shifty;
-    imshowpair(big_img1, big_img2);
+    %imshowpair(big_img1, big_img2);
 end
-
+save('positionshift.mat', 'positionshift')
 
 

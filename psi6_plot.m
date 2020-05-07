@@ -8,9 +8,9 @@ cmap = colormap;
 % m_psi = zeros(1,size(objects_positions,1)-1);
 % std_psi = m_psi;
 % stderr_psi = m_psi;
-for i = 1:size(objects_positions,1)-1
+for i = 1%1:size(objects_positions,1)-1
     
-    save_filename = strcat('psi6_plots_with_tri/psi6_', sprintf('%03d',i), '.png');
+    save_filename = strcat('psi6plots/psi6_', sprintf('%03d',i), '.png');
     img1 = imread(filenamestr, i);
    
     load(strcat('triangles/triangulation_', sprintf('%03d',i), '.mat'));
@@ -58,10 +58,18 @@ for i = 1:size(objects_positions,1)-1
 %     std_psi(i) = std(abs(psi1));
 %     stderr_psi(i) = std(abs(psi1))/sqrt(length(psi1));
 %     
-    
+    grayscaleIM(:,:,3) = img1;
+    grayscaleIM(:,:,2) = img1;
+    grayscaleIM(:,:,1) = img1;
 
     clf;
-    subplot(2,2,1)
+    subplot(1,2,1)
+    imagesc(grayscaleIM);
+    axis equal
+    axis off
+    hold on
+   
+    %hold off
     triplot(TR);
     hold on
     xs = points(:,1);
@@ -84,16 +92,18 @@ for i = 1:size(objects_positions,1)-1
         end
         
     end
-
-    
-    imh = imshow(img1); 
-  
-    hold off
-    uistack(imh, 'bottom')
     
 
+    % Add colorbar
+    c = colorbar() ;
+
+    hold on
+    %imh = imshow(img1); 
+    %uistack(imh, 'bottom')
     
-    subplot(2,2,2)
+
+    
+    subplot(1,2,2)
     time = 0:10:(length(m_psi)-1)*10;
     t2 = [time, fliplr(time)];
 
@@ -118,23 +128,25 @@ for i = 1:size(objects_positions,1)-1
     xlabel("time [s]")
     ylabel(['\psi_' num2str(6)])
     
-    set(gcf, 'Position', [100,100,1500,1000])
-    hold on;
+    %set(gcf, 'Position', [100,100,1500,1000])
     
-    subplot(2,2,3)
-    hold on
-    cinds = uint8(min(abs(psi1),1)*length(cmap));
-    scatter(real(psi1), imag(psi1), 40, cmap(max(1, cinds),:));
-    xlim([-1.1, 1.1])
-    ylim([-1.1, 1.1])
-    axis equal    
-    xlim([-1.1, 1.1])
-    ylim([-1.1, 1.1])
-    plot(cos(0:0.01:2*pi), sin(0:0.01:2*pi), 'k-')
-    xlabel(['\Re \psi_' num2str(6)])
-    ylabel(['\Im \psi_' num2str(6)])
-     saveas(gcf,save_filename)
-     hold off
+%     subplot(1,2,3)
+%     hold on
+%     cinds = uint8(min(abs(psi1),1)*length(cmap));
+%     scatter(real(psi1), imag(psi1), 40, cmap(max(1, cinds),:));
+%     xlim([-1.1, 1.1])
+%     ylim([-1.1, 1.1])
+%     axis equal    
+%     xlim([-1.1, 1.1])
+%     ylim([-1.1, 1.1])
+%     plot(cos(0:0.01:2*pi), sin(0:0.01:2*pi), 'k-')
+%     xlabel(['\Re \psi_' num2str(6)])
+%     ylabel(['\Im \psi_' num2str(6)])
+    %set(gcf, 'PaperUnits', 'centimeters');
+    %set(gcf, 'PaperSize', [100 16]);
+    set(gcf, 'Position', [100,100,1000,400])
+    saveas(gcf,save_filename)
+    hold off
 end
 
 %%
@@ -221,8 +233,9 @@ function fill_color(value, indices, vertices, cmap)
     x = vertices(indices, 1);
     y = vertices(indices, 2);
     cind = uint8(min(1, value)*length(cmap));
-    fill(x,y,  cmap(max(cind, 1), :), 'FaceAlpha', 0.5)
-    
+    if max(x)<=256 && max(y) <= 256 && min(x)>=0 && min(y) >=0
+        fill(x,y,  cmap(max(cind, 1), :), 'FaceAlpha', 0.5)
+    end
 end
 function angle = get_angle(p0, p1)
     u = p1-p0;
